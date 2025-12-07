@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin – SpeedPark</title>
+<script src="api.js"></script>
+<style>
+body { background: #f3f3f3; font-family: Arial; padding: 20px; }
+h1 { text-align: center; }
+table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+th, td { border: 1px solid #999; padding: 10px; }
+tr.green { background: #c6efce; }
+tr.red { background: #ffc7ce; }
+tr.blue { background: #c6d9f0; }
+.box { background: white; padding: 20px; border-radius: 10px; margin-top: 20px; box-shadow: 0 0 10px #ccc; }
+button { padding: 10px 20px; background: #3498db; border: none; color: white; border-radius: 8px; cursor: pointer; }
+</style>
+</head>
+<body>
+
+<h1>Portail Administrateur – SpeedPark</h1>
+
+<div class="box">
+  <h2>Ajouter un invité</h2>
+  <input id="newNom" placeholder="Nom">
+  <input id="newPrenom" placeholder="Prénom">
+  <button onclick="createGuest()">Ajouter</button>
+</div>
+
+<div class="box">
+  <h2>Statistiques</h2>
+  <p><b>Acceptés :</b> <span id="countA"></span></p>
+  <p><b>Doublons :</b> <span id="countD"></span></p>
+  <p><b>Refusés :</b> <span id="countR"></span></p>
+  <p><b>En attente :</b> <span id="countW"></span></p>
+  <button onclick="exportEvent()">Exporter l'historique (CSV)</button>
+  <button onclick="resetEvent()" style="background:#e74c3c;">Réinitialiser événement</button>
+</div>
+
+<div class="box">
+  <h2>Invités</h2>
+  <table id="guestTable">
+    <thead>
+      <tr><th>Nom</th><th>Prénom</th><th>Statut</th><th>Heure</th></tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
+
+<script>
+async function refresh() {
+  const data = await getAll();
+  const tbody = document.querySelector("#guestTable tbody");
+  tbody.innerHTML = "";
+
+  let a=0,d=0,r=0,w=0;
+
+  data.forEach(row => {
+    const tr = document.createElement("tr");
+    if (row.statut === "ACCEPTE") { tr.className = "green"; a++; }
+    else if (row.statut === "DOUBLON") { tr.className = "blue"; d++; }
+    else if (row.statut === "REFUSE") { tr.className = "red"; r++; }
+    else w++;
+    tr.innerHTML = `<td>${row.nom}</td><td>${row.prenom}</td><td>${row.statut}</td><td>${row.heure || ""}</td>`;
+    tbody.appendChild(tr);
+  });
+
+  document.getElementById("countA").innerText = a;
+  document.getElementById("countD").innerText = d;
+  document.getElementById("countR").innerText = r;
+  document.getElementById("countW").innerText = w;
+}
+
+async function createGuest() {
+  const nom = newNom.value.trim();
+  const prenom = newPrenom.value.trim();
+  if(!nom || !prenom){ alert("Nom et prénom requis"); return; }
+  await addGuest(nom, prenom);
+  newNom.value=""; newPrenom.value="";
+  refresh();
+}
+
+setInterval(refresh, 5000);
+refresh();
+</script>
+
+</body>
+</html>

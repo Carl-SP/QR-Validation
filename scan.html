@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scan Invités – SpeedPark</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+<script src="api.js"></script>
+<style>
+body { background: #111; color: white; font-family: Arial; text-align: center; padding: 30px; }
+input { padding: 10px; width: 260px; margin: 8px; border-radius: 8px; border: none; font-size: 18px; }
+button { padding: 12px 25px; border-radius: 8px; border: none; font-size: 20px; background: #ffcc00; cursor: pointer; }
+#result { margin-top: 25px; padding: 20px; font-size: 22px; font-weight: bold; display: none; border-radius: 12px; }
+.green { background: #2ecc71; color: black; }
+.red   { background: #e74c3c; }
+.blue  { background: #3498db; }
+</style>
+</head>
+<body>
+
+<h1>Validation des invités</h1>
+
+<input id="nom" type="text" placeholder="Nom"><br>
+<input id="prenom" type="text" placeholder="Prénom"><br>
+<button onclick="scanGuest()">Scanner</button>
+
+<div id="result"></div>
+
+<script>
+async function scanGuest() {
+  const nom = document.getElementById("nom").value.trim();
+  const prenom = document.getElementById("prenom").value.trim();
+  const zone = document.getElementById("result");
+
+  if (!nom || !prenom) {
+    zone.style.display = "block";
+    zone.className = "red";
+    zone.innerHTML = "Veuillez remplir les deux champs.";
+    return;
+  }
+
+  const r = await addScan(nom, prenom);
+
+  zone.style.display = "block";
+
+  if (r.status === "ACCEPTE") {
+    zone.className = "green animate__animated animate__fadeIn";
+    zone.innerHTML = "✔️ Bienvenue ! Passez aux caisses.";
+  }
+  else if (r.status === "DOUBLON") {
+    zone.className = "blue animate__animated animate__fadeIn";
+    zone.innerHTML = "⚠️ Déjà scanné.";
+  }
+  else {
+    zone.className = "red animate__animated animate__fadeIn";
+    zone.innerHTML = "❌ Désolé, vous n’êtes pas sur la liste.";
+  }
+
+  document.getElementById("nom").value = "";
+  document.getElementById("prenom").value = "";
+}
+</script>
+
+</body>
+</html>
