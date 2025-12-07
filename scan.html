@@ -40,7 +40,6 @@ async function scanGuest() {
   }
 
   const r = await addScan(nom, prenom);
-
   zone.style.display = "block";
 
   if (r.status === "ACCEPTE") {
