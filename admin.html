@@ -11,8 +11,8 @@ h1 { text-align: center; }
 table { width: 100%; border-collapse: collapse; margin: 20px 0; }
 th, td { border: 1px solid #999; padding: 10px; }
 tr.green { background: #c6efce; }
-tr.red { background: #ffc7ce; }
-tr.blue { background: #c6d9f0; }
+tr.red   { background: #ffc7ce; }
+tr.blue  { background: #c6d9f0; }
 .box { background: white; padding: 20px; border-radius: 10px; margin-top: 20px; box-shadow: 0 0 10px #ccc; }
 button { padding: 10px 20px; background: #3498db; border: none; color: white; border-radius: 8px; cursor: pointer; }
 </style>
@@ -53,16 +53,22 @@ async function refresh() {
   const data = await getAll();
   const tbody = document.querySelector("#guestTable tbody");
   tbody.innerHTML = "";
-
   let a=0,d=0,r=0,w=0;
 
   data.forEach(row => {
     const tr = document.createElement("tr");
+
     if (row.statut === "ACCEPTE") { tr.className = "green"; a++; }
     else if (row.statut === "DOUBLON") { tr.className = "blue"; d++; }
     else if (row.statut === "REFUSE") { tr.className = "red"; r++; }
     else w++;
-    tr.innerHTML = `<td>${row.nom}</td><td>${row.prenom}</td><td>${row.statut}</td><td>${row.heure || ""}</td>`;
+
+    tr.innerHTML = `
+      <td>${row.nom}</td>
+      <td>${row.prenom}</td>
+      <td>${row.statut}</td>
+      <td>${row.heure || ""}</td>
+    `;
     tbody.appendChild(tr);
   });
 
@@ -73,11 +79,12 @@ async function refresh() {
 }
 
 async function createGuest() {
-  const nom = newNom.value.trim();
-  const prenom = newPrenom.value.trim();
-  if(!nom || !prenom){ alert("Nom et prénom requis"); return; }
+  const nom = document.getElementById("newNom").value.trim();
+  const prenom = document.getElementById("newPrenom").value.trim();
+  if(!nom || !prenom){ alert("Remplir les deux champs."); return; }
   await addGuest(nom, prenom);
-  newNom.value=""; newPrenom.value="";
+  document.getElementById("newNom").value = "";
+  document.getElementById("newPrenom").value = "";
   refresh();
 }
 
